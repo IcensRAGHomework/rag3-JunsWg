@@ -60,7 +60,50 @@ def generate_hw01():
     return collection
     
 def generate_hw02(question, city, store_type, start_date, end_date):
-    pass
+    chroma_client = chromadb.PersistentClient(path=dbpath)
+    openai_ef = embedding_functions.OpenAIEmbeddingFunction(
+        api_key=gpt_emb_config['api_key'],
+        api_base=gpt_emb_config['api_base'],
+        api_type=gpt_emb_config['openai_type'],
+        api_version=gpt_emb_config['api_version'],
+        deployment_id=gpt_emb_config['deployment_name']
+    )
+    collection = chroma_client.get_or_create_collection(
+        name="TRAVEL",
+        metadata={"hnsw:space": "cosine"},
+        embedding_function=openai_ef
+    )
+    query_conditions = []
+    if city is not None:
+        query_conditions.append({"city": {"$in": city}})
+    if store_type is not None:
+        query_conditions.append({"type": {"$in": store_type}})
+
+    if start_date is not None:
+        query_conditions.append({"date": {"$gte": int(start_date.timestamp())}})
+    if end_date is not None:
+        query_conditions.append({"date": {"$lte": int(end_date.timestamp())}})
+
+    query_results = collection.query(
+        query_texts=[question],
+        n_results=10,
+        where={"$and": query_conditions},
+        #where_document={"$contains":"search_string"}
+        include=["metadatas", "distances"]
+    )
+    print(query_results)
+    results = []
+    delta = 1-0.8
+    distances = query_results['distances'][0]
+    metadatas = query_results['metadatas'][0]
+    # 打印结果中的 name 字段
+    for i, distance in enumerate(distances):
+        if distance <= delta:
+            name = metadatas[i].get("name")
+            if name:  # 如果 'name' 存在，则添加到 names 列表中
+                results.append(name)
+
+    return results
     
 def generate_hw03(question, store_name, new_store_name, city, store_type):
     pass
