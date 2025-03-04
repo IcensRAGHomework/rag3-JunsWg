@@ -91,7 +91,7 @@ def generate_hw02(question, city, store_type, start_date, end_date):
         #where_document={"$contains":"search_string"}
         include=["metadatas", "distances"]
     )
-    print(query_results)
+    #print(query_results)
     results = []
     delta = 1-0.8
     distances = query_results['distances'][0]
