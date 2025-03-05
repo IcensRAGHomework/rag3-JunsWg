@@ -68,9 +68,9 @@ def generate_hw01():
         api_version=gpt_emb_config['api_version'],
         deployment_id=gpt_emb_config['deployment_name']
     )
-    collections = chroma_client.list_collections()
-    if "TRAVEL" not in collections:
-        generate_collection()
+    #collections = chroma_client.list_collections()
+    #if "TRAVEL" not in collections:
+    #    generate_collection()
     collection = chroma_client.get_or_create_collection(
         name="TRAVEL",
         metadata={"hnsw:space": "cosine"},
