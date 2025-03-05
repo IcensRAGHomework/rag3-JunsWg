@@ -71,8 +71,9 @@ def generate_hw01():
     collections = chroma_client.list_collections()
     if "TRAVEL" not in collections:
         generate_collection()
-    collection = chroma_client.get_collection(
+    collection = chroma_client.get_or_create_collection(
         name="TRAVEL",
+        metadata={"hnsw:space": "cosine"},
         embedding_function=openai_ef
     )
 
